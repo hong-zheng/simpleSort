@@ -1,0 +1,1363 @@
+#define _CRT_SECURE_NO_WARNINGS 1
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+void Print(int arr[] , int len){
+	for (int i = 0; i < len;i++){
+		printf("%d ",arr[i]);
+	}
+	printf("\n");
+}
+void swap( int tree[] , int i , int j){
+	int tmp = tree[i];
+	tree[i] = tree[j];
+	tree[j] = tmp;
+}
+//7 堆排序 
+void heapify(int tree[] , int n , int i){
+	if ( i>=n){
+		return;
+	}
+	int c1 = 2 * i + 1;
+	int c2 = 2 * i + 2;
+	int max = i;
+	if ( c1 < n && tree[c1]>tree[max]){
+		max = c1;
+	}
+	if ( c2 < n && tree[c2] > tree[max]){
+		max = c2;
+	}
+	if ( i != max){
+		swap( tree , i ,max);
+		heapify( tree , i , max);
+	}
+}
+void buildHeap(int tree[] , int len){
+	int last_node = len - 1;
+	int parent = (last_node - 1) / 2;
+	for (int i = parent; i >= 0;i--){
+		heapify( tree,len,i);
+	}
+}
+void heapSort(int tree[], int len){
+	buildHeap(tree,len);
+	for (int i = len - 1; i >= 0;i--){
+		swap(tree,i,0);
+		heapify( tree , i , 0);
+	}
+}
+
+
+// 6 插入排序
+void insertSort( int arr[] , int len){
+	for (int i = 1; i < len; i++){
+		if ( arr[i] < arr[i-1]){
+			int j = 0;
+			int cur = arr[i];
+			for (j = i - 1; j >= 0 && cur < arr[j];j--){
+				arr[j + 1] = arr[j];
+			}
+			arr[j + 1] = cur;
+		}
+	}
+}
+
+// 5 快速排序
+int piv(int arr[] , int l ,int h){
+	int min = arr[l];
+	while ( l < h){
+		while ( l < h && min<arr[h]){
+			h--;
+		}
+		arr[l] = arr[h];
+		while (l < h && min >= arr[l]){
+			l++;
+		}
+		arr[h] = arr[l];
+	}
+	arr[l] = min;
+	return l;
+}
+void sortpiv(int arr[],int l,int h){
+	if ( l < h){
+		int pivv = piv( arr , l , h);
+		sortpiv(arr, l, pivv - 1);
+		sortpiv(arr, pivv + 1, h);
+	}
+}
+void SORTPIV(int arr[] , int len){
+	sortpiv( arr , 0 ,len-1);
+}
+
+// 4 归并排序
+void merge(int arr[] , int l , int m , int r){
+	int len = r - l + 1;
+	int* newArr = (int*)malloc(sizeof(int)*len);
+	int left = l;
+	int right = m + 1;
+	int k = 0;
+	while ( left <= m && right<=r){
+		if ( arr[left] < arr[right]){
+			newArr[k++] = arr[left++];
+ 		}
+		else{
+			newArr[k++] = arr[right++];
+		}
+	}
+	while (left <= m){
+		newArr[k++] = arr[left++];
+	}
+	while (right <= r){
+		newArr[k++] = arr[right++];
+	}
+	memcpy( arr + l , newArr,sizeof(int)*len);
+
+	free(newArr);
+	newArr = NULL;
+}
+void MERGE(int arr[] , int l , int r){
+	if ( l == r){
+		return;
+	}
+	int m = l + (r - l) / 2;
+	MERGE(arr, l, m);
+	MERGE(arr, m+1, r);
+	merge(arr,l,m,r);
+}
+void SORTMERGE( int arr[] , int len){
+	MERGE(arr, 0,len-1);
+}
+
+// 3 希尔排序
+void shellSort( int arr[] , int len){
+	int step = len / 2;
+	while (step >= 1){
+		for (int i = step; i < len;i++){
+			for (int j = 1; j < len;j++){
+				if ( arr[i] < arr[i-1]){
+					int k = 0;
+					int cur = arr[j];
+					for (k = j - step; k >= 0 && cur < arr[k];k-=step){
+						arr[k + step] = arr[k];
+					}
+					arr[k + step] = cur;
+				}
+			}
+		}
+		step /= 2;
+	}
+}
+
+#define LEN 23
+#define MAX 4591
+// 2 基数排序
+void radix(int arr[] , int len){
+	int tmp[MAX+1];
+	memset(tmp,0,sizeof(int)*(MAX+1));
+	for (int i = 0; i < len;i++){
+		tmp[arr[i]]++;
+	}
+	for (int i = 0; i < MAX + 1;i++){
+		while (tmp[i]--){
+			printf("%d ",i);
+		}
+	}
+	printf("\n");
+}
+
+// 1 桶排序
+void bucket(int arr[] , int len){
+	for (int i = 1; i < MAX;i*=10){
+		int tmp[10][LEN];
+		memset(tmp,-1,sizeof(int)*10*LEN);
+		for (int j = 0; j < len;j++){
+			int m = arr[j] / i % 10;
+			tmp[m][j] = arr[j];
+		}
+
+		int k = 0;
+		for (int i = 0; i < 10;i++){
+			for (int j = 0; j < len;j++){
+				if ( -1 != tmp[i][j]){
+					arr[k++] = tmp[i][j];
+				}
+			}
+		}
+	}
+}
+// 0 select
+void select(int arr[] ,int len){
+	for (int i = 0; i < len;i++){
+		int min = arr[i];
+		int flag = -1;
+		for (int j = i + 1; j <len; j++){
+			if (arr[j] < min){
+				min = arr[j];
+				flag = j;
+			}
+		}
+		if ( -1 != flag){
+			arr[flag] = arr[i];
+			arr[i] = min;
+		}
+	}
+}
+// -1  bubble
+void bubble(int* arr, int len){
+	for (int i = 0; i < len - 1;i++){
+		for (int j = 0; j < len - i - 1;j++){
+			if ( arr[j+1] > arr[j]){
+				swap(arr,j,j+1);
+			}
+		}
+	}
+}
+int main(){
+
+	int arr[] = {329,85,16,32,78,91,63,832,1,51,0,4591,0,37,7,1864,57,610,78,43,67,58,4};
+	int len = sizeof(arr) / sizeof(arr[0]);
+	Print(arr, len);
+	bubble(arr, len);
+	Print(arr, len);
+	printf("%d\n", len);
+	printf("%d\n", arr[len-1]);
+	system("pause");
+	return 0;
+}
+
+
+//C语言实现
+//hehec - f - h0 - 3
+//== >
+//hehecdefgh0123
+
+
+//typedef struct ListNode {
+//	int val;
+//	struct ListNode *next;
+//}ListNode;
+//
+//ListNode* deleteDuplication(ListNode* pHead)
+//{
+//	ListNode *H, *prev, *cur, *next;
+//	if (pHead == NULL && pHead->next == NULL){
+//		return pHead;
+//	}
+//	prev = (ListNode*)malloc(sizeof(ListNode));
+//	H = prev;
+//	prev->next = pHead;
+//	cur = pHead;
+//	next = cur->next;
+//	while (next){
+//		if (cur->val != next->val){
+//			prev = cur;
+//			cur = next;
+//			next = next->next;
+//		}
+//		else{
+//			while (next && cur->val == next->val){
+//				next = next->next;
+//			}
+//			prev->next = next;
+//			cur = next;
+//			if (next != NULL)
+//				next = next->next;
+//		}
+//	}
+//	return H->next;
+//}
+//
+//
+//void insert(int arr[],int len){
+//	for (int i = 1; i < len;i++){
+//		if (arr[i] < arr[i-1]){
+//			int j = 0;
+//			int cur = arr[i];
+//			for (j = i - 1; j >= 0 && cur < arr[j];j--){
+//				arr[j + 1] = arr[j];
+//			}
+//			arr[j + 1] = cur;
+//		}
+//	}
+//}
+//int maisn(){
+//
+//	int arr[] = {32,5,1,79,05,2,67,82,31,576,598,792};
+//	int len = sizeof(arr) / sizeof(arr[0]);
+//	insert(arr,len);
+//	ListNode a = { 1, (ListNode*)0 };
+//	ListNode b = { 1, (ListNode*)0 };
+//	ListNode c = { 1, (ListNode*)0 };
+//	ListNode d = { 1, (ListNode*)0 };
+//	ListNode e = { 4, (ListNode*)0 };
+//	ListNode f = { 4, (ListNode*)0 };
+//	ListNode g = { 4, (ListNode*)NULL };
+//	a.next = &b;
+//	b.next = &c;
+//	c.next = &d;
+//	d.next = &e;
+//	e.next = &f;
+//	f.next = &g;
+//	ListNode* cur = deleteDuplication(&a);
+//
+//	printf("end\n");
+//	system("pause");
+//	return 0;
+//}
+////
+//// 支持动态增长的栈
+//typedef int STDataType;
+//#define _CAPACITY 4
+//typedef struct Stack
+//{
+//	STDataType* _a;
+//	int _top;		// 栈顶
+//	int _capacity;  // 容量 
+//}Stack;
+//// 动态扩容函数
+//void Realloc(Stack** ps){
+//	(*ps)->_capacity *= 2;
+//	(*ps)->_a = (STDataType*)realloc((*ps)->_a, (*ps)->_capacity*sizeof(STDataType));
+//}
+//// 初始化栈 
+//void StackInit(Stack* ps){
+//	ps->_capacity = _CAPACITY;
+//	ps->_a = (STDataType*)malloc(ps->_capacity*sizeof(STDataType));
+//	ps->_top = -1;
+//}
+//// 入栈 
+//void StackPush(Stack* ps, STDataType data){
+//	if (NULL == ps){
+//		return;
+//	}
+//	// 入栈之前首先检查是否需要扩容
+//	if (ps->_top+1 == ps->_capacity){
+//		Realloc(&ps);
+//	}
+//	ps->_a[++ps->_top] = data;
+//}
+//// 出栈 
+//void StackPop(Stack* ps){
+//	// 出栈时先检查栈是否为空，为空就不能出栈
+//	// 在此也可以不检查，在外面提供相应的接口用于栈是否为空的检查
+//	if ( ps->_top == -1){
+//		return;
+//	}
+//	ps->_top--;
+//}
+//// 获取栈顶元素 
+//STDataType StackTop(Stack* ps){
+//	// 获取栈顶元素时先检查栈是否为空，为空就不能出栈
+//	// 在此也可以不检查，在外面提供相应的接口用于栈是否为空的检查
+//	if (ps->_top == -1){
+//		return (STDataType)0;
+//	}
+//	return ps->_a[ps->_top];
+//}
+//// 获取栈中有效元素个数 
+//int StackSize(Stack* ps){
+//	return ps->_top+1;
+//}
+//// 检测栈是否为空，如果为空返回非零结果，如果不为空返回0 
+//int StackEmpty(Stack* ps){
+//	return ps->_top+1;
+//}
+//// 销毁栈 
+//void StackDestroy(Stack* ps){
+//	if ( ps->_a){
+//		free( ps->_a);
+//		ps->_a = NULL;
+//		ps->_capacity = 0;
+//		ps->_top = -1;
+//	}
+//}
+//
+//int mailn(){
+//
+//	Stack ps;
+//	StackInit(&ps);
+//	StackPush(&ps, 1);
+//	StackPush(&ps, 2);
+//	StackPush(&ps, 3);
+//	StackPush(&ps, 4);
+//	StackPush(&ps, 5);
+//	StackPush(&ps, 6);
+//	StackPush(&ps, 7);
+//	StackPush(&ps, 8);
+//
+//	while (StackEmpty(&ps) != 0){
+//		STDataType cur = StackTop(&ps);
+//		printf("%d ", cur);
+//		StackPop(&ps);
+//	}
+//	system("pause");
+//	return 0;
+//}
+//
+//// 链式结构：表示队列 
+//typedef struct QListNode
+//{
+//	struct QListNode* _next;
+//	STDataType _data;
+//}QNode;
+//
+//// 队列的结构 
+//typedef struct Queue{
+//	QNode* _front;
+//	QNode* _rear;
+//}Queue;
+//
+//// 初始化队列 
+//void QueueInit(Queue* q){
+//	q->_front = (QNode*)malloc(sizeof(QNode));
+//	q->_front->_next = NULL;
+//	q->_front->_data = 0;
+//	q->_rear = q->_front;
+//}
+//
+//QNode* creatNode(STDataType data){
+//	QNode* newnode = (QNode*)malloc(sizeof(QNode));
+//	newnode->_data = data;
+//	newnode->_next = NULL;
+//	return newnode;
+//}
+//// 队尾入队列 
+//void QueuePush(Queue* q, STDataType data){
+//	QNode* newnode = creatNode(data);
+//	q->_rear->_next = newnode;
+//	q->_rear = newnode;
+//}
+//// 队头出队列 
+//void QueuePop(Queue* q){
+//	q->_front->_next = q->_front->_next->_next;
+//}
+//// 获取队列头部元素 
+//STDataType QueueFront(Queue* q){
+//	return q->_front->_next;
+//}
+//// 获取队列队尾元素 
+//STDataType QueueBack(Queue* q){
+//	return q->_rear;
+//}
+//// 获取队列中有效元素个数 
+//int QueueSize(Queue* q){
+//	int num = 0;
+//	QNode* cur = q->_front->_next;
+//	while (cur){
+//		++num;
+//		cur = cur->_next;
+//	}
+//	return num;
+//}
+//// 检测队列是否为空，如果为空返回非零结果，如果非空返回0 
+//int QueueEmpty(Queue* q){
+//	if ( q->_front->_next == NULL){
+//		return 1;
+//	}
+//	return 0;
+//}
+//// 销毁队列 
+//void QueueDestroy(Queue* q){
+//	if (q == NULL){
+//		return;
+//	}
+//	QNode* cur = QueueFront(q);
+//	QNode* prev = cur;
+//	while (cur){
+//		prev = cur;
+//		free(cur);
+//		cur = cur->_next;
+//	}
+//	free(q->_front);
+//	q->_front = NULL;
+//	q->_rear = NULL;
+//}
+//
+//int main(){
+//
+//	Queue q;
+//	QueueInit(&q);
+//	QueuePush(&q, 1);
+//	QueuePush(&q, 2);
+//	QueuePush(&q, 3);
+//	QueuePush(&q, 4);
+//	QueuePush(&q, 5);
+//	QueuePush(&q, 6);
+//
+//	QNode* 	cur = QueueFront(&q);
+//	while (cur){
+//		printf("%d ",cur->_data);
+//		QueuePop(&q);
+//		cur = QueueFront(&q);
+//	}
+//	system("pause");
+//	return 0;
+//}
+//
+
+//参考答案(答题后可查看)
+//#include "stack.h"
+//#define DEFSTACKSIZE 100
+//
+//void CheckCapacity(Stack* ps)
+//{
+//	if (ps->size >= ps->capacity)
+//	{
+//		ps->capacity *= 2;
+//		ps->array = (STDataType *)realloc(ps->array, ps->capacity * sizeof(STDataType));
+//	}
+//}
+//
+//void StackInit(Stack* ps)
+//{
+//	ps->array = (STDataType *)calloc(DEFSTACKSIZE, sizeof(STDataType));
+//	ps->capacity = DEFSTACKSIZE;
+//	ps->size = 0;
+//}
+//
+//void StackPush(Stack* ps, STDataType x)
+//{
+//	CheckCapacity(ps);
+//
+//	ps->array[ps->size] = x;
+//	ps->size++;
+//}
+//
+//void StackPop(Stack* ps)
+//{
+//	if (ps->size == 0)
+//	{
+//		return;
+//	}
+//	ps->size--;
+//}
+//
+//STDataType StackTop(Stack* ps)
+//{
+//	if (ps->size == 0)
+//	{
+//		return (STDataType)0;
+//	}
+//	return ps->array[ps->size - 1];
+//}
+//
+//int StackEmpty(Stack* ps)
+//{
+//	return ps->size == 0;
+//}
+//
+//int StackSize(Stack* ps)
+//{
+//	return ps->size;
+//}
+//
+//void StackDestory(Stack* ps)
+//{
+//	if (ps->array)
+//	{
+//		free(ps->array);
+//		ps->array = NULL;
+//		ps->size = 0;
+//		ps->capacity = 0;
+//	}
+//}
+//
+//
+//#include "queue.h"
+//
+//QueueNode * BuyQueueNode(QuDataType x)
+//{
+//	QueueNode * cur = (QueueNode *)malloc(sizeof(QueueNode));
+//	cur->_data = x;
+//	cur->_next = NULL;
+//	return cur;
+//}
+//
+//void QueueInit(Queue* q)
+//{
+//	q->_front = NULL;
+//	q->_rear = NULL;
+//}
+//
+//void QueuePush(Queue* q, QuDataType x)
+//{
+//	QueueNode * cur = BuyQueueNode(x);
+//
+//	if (q->_front == NULL)
+//	{
+//		q->_front = q->_rear = cur;
+//	}
+//	else
+//	{
+//		q->_rear->_next = cur;
+//		q->_rear = cur;
+//	}
+//}
+//
+//void QueuePop(Queue* q)
+//{
+//	if (q->_front == NULL)
+//	{
+//		return;
+//	}
+//	QueueNode* tmp = q->_front->_next;
+//	free(q->_front);
+//	q->_front = tmp;
+//}
+//
+//QuDataType QueueFront(Queue* q)
+//{
+//	return q->_front->_data;
+//}
+//
+//QuDataType QueueBack(Queue* q)
+//{
+//	return q->_rear->_data;
+//}
+//
+//int QueueEmpty(Queue* q)
+//{
+//	return q->_front == NULL;
+//}
+//
+//int QueueSize(Queue* q)
+//{
+//	QListNode * cur;
+//	int count = 0;
+//	for (cur = q->_front; cur; cur = cur->_next)
+//	{
+//		count++;
+//	}
+//	return count;
+//}
+//
+//void QueueDestory(Queue* q)
+//{
+//	if (q->_front == NULL)
+//	{
+//		return;
+//	}
+//
+//	while (q->_front)
+//	{
+//		QueuePop(q);
+//	}
+//}
+
+
+//
+//void swap(int tree[],int i,int j){
+//	int tmp = tree[i];
+//	tree[i] = tree[j];
+//	tree[j] = tmp;
+//}
+//// 推排序
+//void heapify( int tree[] , int n , int i){
+//	if ( i >= n){
+//		return;
+//	}
+//	int c1 = 2 * i + 1;
+//	int c2 = 2 * i + 2;
+//	int max = i;
+//	if (  c1 < n && tree[c1] > tree[max]){
+//		max = c1;
+//	}
+//	if ( c2 < n && tree[c2] > tree[max]){
+//		max = c2;
+//	}
+//	if ( i != max){
+//		swap( tree , i , max);
+//		heapify( tree , n , max);
+//	}
+//}
+//void buildHeap( int tree[] , int n){
+//	int last_node = n - 1;
+//	int parent = ( last_node - 1 ) / 2;
+//	for (int i = parent; i >= 0;i--){
+//		heapify( tree , n , i);
+//	}
+//}
+//void sort(int tree[],int n){
+//	buildHeap(tree,n);
+//	for (int i = n - 1; i >= 0;i--){
+//		swap(tree,i,0);
+//		heapify( tree , i , 0);
+//	}
+//}
+//void print(int arr[],int len){
+//	for (int i = 0; i < len;i++){
+//		printf("%d ",arr[i]);
+//	}
+//	printf("\n");
+//}
+//
+//// QSort
+//int piv(int arr[],int l,int h){
+//	int indx = arr[l];
+//	while (l < h){
+//		while ( l < h && arr[h] >= indx){
+//			h--;
+//		}
+//		arr[l] = arr[h];
+//		while (l<h && arr[l] < indx){
+//			l++;
+//		}
+//		arr[h] = arr[l];
+//	}
+//	arr[l] = indx;
+//	return l;
+//}
+//void chaifen( int arr[], int l , int h){
+//	if (l < h){
+//		int vi = piv(arr,l,h);
+//		chaifen(arr, l, vi - 1);
+//		chaifen(arr, vi + 1,h);
+//	}
+//}
+//void QSORT(int arr[] ,int len){
+//	chaifen( arr , 0 , len-1);
+//}
+//
+//// MERGE
+//void merge(int arr[] , int l , int m , int r){
+//	int len = r - l + 1;
+//	int* newArr = (int*)malloc(sizeof(int)*len);
+//	int left = l; 
+//	int right = m + 1;
+//	int k = 0;
+//	while ( left <= m && right<=r){
+//		if (arr[left] < arr[right]){
+//			newArr[k++] = arr[left++];
+//		}
+//		else
+//		{
+//			newArr[k++] = arr[right++];
+//		}
+//	}
+//	while (left <= m){
+//		newArr[k++] = arr[left++];
+//	}
+//	while (right <= r){
+//		newArr[k++] = arr[right++];
+//	}
+//
+//	memcpy(arr+l,newArr,sizeof(int)*len);
+//	free(newArr);
+//	newArr = NULL;
+//}
+//void mm(int arr[],int l ,int r){
+//	if (l == r){
+//		return;
+//	}
+//	int m = l + (r - l) / 2;
+//	mm(arr,l,m);
+//	mm(arr,m+1,r);
+//	merge(arr,l,m,r);
+//}
+//void MERGE(int arr[],int len){
+//	mm(arr,0,len-1);
+//}
+//
+//
+//// 基数排序
+//#define MAX 67
+//#define LEN 12
+//void radix(int arr[] , int len){
+//	int tmp[MAX+1];
+//	memset(tmp,0,sizeof(int)*(MAX+1));
+//	for (int i = 0; i < len;i++){
+//		tmp[arr[i]]++;
+//	}
+//	for (int i = 0; i < MAX + 1;i++){
+//		while (tmp[i]--){
+//			printf("%d ",i);
+//		}
+//	}
+//	printf("\n");
+//}
+//// 桶排序
+//void bucket(int arr[] , int len){
+//	for (int i = 1; i < MAX;i*=10){
+//		int tmp[10][LEN];
+//		memset(tmp,-1,10*LEN*sizeof(int));
+//		for (int j = 0; j < len;j++){
+//			int m = arr[j] / i % 10;
+//			tmp[m][j] = arr[j];
+//		}
+//		int k = 0;
+//		for (int i = 0; i < 10;i++){
+//			for (int j = 0; j < len;j++){
+//				if (-1 != tmp[i][j]){
+//					arr[k++] = tmp[i][j];
+//				}
+//			}
+//		}
+//	}
+//}
+//
+//// 插入排序
+//void insert(int arr[],int len){
+//	for (int i = 1; i < len;i++){
+//		if ( arr[i] < arr[i-1]){
+//			int j = 0;
+//			int cur = arr[i];
+//			for (j = i - 1; j >= 0 && cur < arr[j];j--){
+//				arr[j + 1] = arr[j];
+//			}
+//			arr[j + 1] = cur;
+//		}
+//	}
+//}
+//
+//// shell
+//void shell(int arr[],int len){
+//	int step = len / 2;
+//	while ( step >= 1){
+//		for (int i = step; i < len;i++){
+//			for (int j = 1; j < len;j++){
+//				if (arr[i] < arr[i-1]){
+//					int k = 0;
+//					int cur = arr[j];
+//					for (k = j - step; k >= 0 && arr[k] > cur;k-=step){
+//						arr[k + step] = arr[k];
+//					}
+//					arr[k + step] = cur;
+//				}
+//			}
+//		}
+//		step /= 2;
+//	}
+//}
+//
+//// 选择排序
+//void select(int arr[] , int len){
+//	for (int i = 0; i < len;i++){
+//		int min = arr[i];
+//		int flag = -1;
+//		for (int j = i + 1; j < len;j++){
+//			if ( min > arr[j]){
+//				min = arr[j];
+//				flag = j;
+//			}
+//		}
+//		if ( -1 != flag){
+//			arr[flag] = arr[i];
+//			arr[i] = min;
+//		}
+//	}
+//}
+//int main(){
+//	
+//	int tree[] = {4,10,3,4,21,8,9,67,1,35,8,9};
+//	int len = sizeof(tree) / sizeof(tree[0]);
+//	print(tree, len);
+//	select(tree, len);
+//	print(tree, len);
+//	system("pause");
+//	return 0;
+//}
+////
+////typedef int QDataType;
+////typedef struct QNode{
+////	struct QNode* _next;
+////	QDataType _data;
+////}QNode;
+////typedef struct Queue{
+////	QNode* _front;
+////	QNode* _rear;
+////}Queue;
+////
+////void  queueInit(Queue* q){
+////	// 初始化队列
+////	q->_front = q->_rear = NULL;
+////}
+////QNode* createNode(QDataType data){
+////	QNode* node = (QNode*)malloc(sizeof(QNode));
+////	node->_data = data;
+////	node->_next = NULL;
+////	return node;
+////}
+////// 队尾入队
+////void queuePush(	Queue* q,QDataType data){
+////	QNode* node = createNode(data);
+////	if ( q->_front == NULL){
+////		q->_front = q->_rear = node;
+////	}
+////	else
+////	{
+////		q->_rear->_next = node;
+////		q->_rear = node;
+////	}
+////}
+////// 队头出队
+////void queuePop(Queue* q){
+////	if (NULL == q || q->_front == NULL){
+////		return;
+////	}
+////	//if (q->_front->_next == NULL){
+////	//	q->_front = NULL;
+////	//	q->_rear = NULL;
+////	//	return;
+////	//}
+////	QNode* cur = q->_front->_next;
+////	free(q->_front);
+////	q->_front = cur;
+////
+////	// 处理野指针
+////	// 头指针被删除，尾指针也指向NULL，不能使其随意指向
+////	if (q->_front == NULL){
+////		q->_rear = NULL;
+////	}
+////}
+////
+////// 判断是否还有元素对外提供接口
+////
+////// 获取队头元素
+////QDataType queueFront(Queue* q){
+////	return q->_front->_data;
+////}
+////
+////// 队尾元素
+////QDataType queueBack(Queue* q){
+////	return q->_rear->_data;
+////}
+////// 一般判空用的是指针是否为NULL来判空
+////
+////size_t queueSize(Queue* q){
+////	int num = 0;
+////	QNode* cur = q->_front;
+////	while (cur){
+////		++cur;
+////		cur = cur->_next;
+////	}
+////	return num;
+////}
+////int queueEmpty( Queue* q){
+////	if (q->_front == NULL){
+////		return 1;
+////	}
+////	return 0;
+////}
+////void queueDestory(Queue* q){
+////	QNode* cur = q->_front;
+////	while ( cur ){
+////		// 存放下一个结点
+////		QNode* next = cur->_next;
+////		// 释放当前结点
+////		free(cur);
+////		// 更新当前结点
+////		cur = next;
+////	}
+////	// 使首位结点指向NULL
+////	q->_front = q->_rear = NULL;
+////}
+////
+////void queueDestoryqq(Queue* q){
+////	QNode* cur = q->_front;
+////	while ( cur ){
+////		QNode* next = cur->_next;
+////		free(cur);
+////		cur = next;
+////	}
+////	q->_front = q->_rear = NULL;
+////}
+////int main(){
+////
+////	Queue q;
+////	queueInit(&q);
+////	queuePush(&q, 1);
+////	queuePush(&q, 2);
+////	queuePush(&q, 3);
+////	queuePush(&q, 4);
+////	queuePush(&q, 5);
+////	system("pause");
+////	return 0;
+////}
+//
+////// 建立一颗有序二叉树
+////typedef int Type;
+////typedef struct Node{
+////	Type _data;
+////	struct Node* _left;
+////	struct Node* _right;
+////}Node;
+////typedef struct Tree{
+////	Node* _pRoot;
+////}Tree;
+////
+////Node* createNode(Type data){
+////	Node* node = (Node*)malloc(sizeof(Node));
+////	node->_data = data;
+////	node->_left = node->_right = NULL;
+////	return node;
+////}
+////
+////void treeInit(Tree* tree){
+////
+////	tree = (Tree*)malloc(sizeof(Tree));
+////
+////	tree->_pRoot = (Node*)malloc(sizeof(Node));
+////	tree->_pRoot->_data = 0;
+////	tree->_pRoot->_left = NULL;
+////	tree->_pRoot->_right = NULL;
+////}
+////
+////// 有序的插入一颗树中
+////void insertTree(Node** root , Type data){
+////	Node* node = createNode(data);
+////	if (NULL == *root){
+////		*root = node;
+////		return;
+////	}
+////	if ((*root)->_data > data){
+////		insertTree((*root)->_left,data);
+////	}
+////	else
+////	{
+////		insertTree((*root)->_right, data);
+////	}
+////}
+////
+////
+////void print(Node* cur){
+////	if (NULL == cur){
+////		return;
+////	}
+////	print(cur->_left);
+////	printf("%d ",cur->_data);
+////	print(cur->_right);
+////}
+////int maina(){
+////
+////	Tree* tree = NULL;
+////	treeInit(tree);
+////	insertTree(&tree, 1);
+////	insertTree(&tree, 2);
+////	insertTree(&tree, 3);
+////	insertTree(&tree, 4);
+////	insertTree(&tree, 5);
+////	print(tree);
+////	system("pause");
+////	return 0;
+////}
+//
+////int main(){
+////
+////	system("pause");
+////	return 0;
+////}
+////#define MAX 697
+////void radix(int arr[],int len){
+////	int tmp[MAX+1];
+////	memset(tmp,0,sizeof(int)*(MAX+1));
+////	for (int i = 0; i < len;i++){
+////		tmp[arr[i]]++;
+////	}
+////	for (int i = 0; i < MAX + 1;i++){
+////		while (tmp[i]--){
+////			printf("%d ",i);
+////		}
+////	}
+////	printf("\n");
+////}
+////
+////#define LEN 14
+////void bucket( int arr[] ,int len){
+////	for (int i = 1; i < MAX;i*=10){
+////		int tmp[10][LEN];
+////		memset(tmp,-1,sizeof(int)*LEN*10);
+////		for (int j = 0; j < len;j++){
+////			int m = arr[j] / i % 10;
+////			tmp[m][j] = arr[j];
+////		}
+////		int k = 0;
+////		for (int i = 0; i < 10;i++){
+////			for (int j = 0; j < len;j++){
+////				if (-1 != tmp[i][j]){
+////					arr[k++] = tmp[i][j];
+////				}
+////			}
+////		}
+////	}
+////}
+////
+////void insert(int arr[],int len){
+////	for (int i = 1; i < len;i++){
+////		if ( arr[i] < arr[i-1]){
+////			int j = 0;
+////			int cur = arr[i];
+////			for (j = i - 1; j >= 0 && cur < arr[j];j--){
+////				arr[j + 1] = arr[j];
+////			}
+////			arr[j + 1] = cur;
+////		}
+////	}
+////}
+////
+////void shellSort( int arr[] , int len){
+////	int step = len / 2;
+////	while ( step>=1){
+////		for (int i = step; i < len;i++){
+////			for (int j = 1; j < len;j++){
+////				if (arr[j] < arr[j-1]){
+////					int k = 0;
+////					int cur = arr[j];
+////					for (k = j - step; k >= 0 && cur < arr[k];k-=step){
+////						arr[k + step] = arr[k];
+////					}
+////					arr[k + step] = cur;
+////				}
+////			}
+////		}
+////		step /= 2;
+////	}
+////}
+////
+////void select(int arr[],int len){
+////	for (int i = 0; i < len;i++){
+////		int cur = arr[i];
+////		int flag = -1;
+////		for (int j = i + 1; j < len;j++){
+////			if (arr[j] > cur){
+////				cur = arr[j];
+////				flag = j;
+////			}
+////		}
+////		if (-1 != flag){
+////			arr[flag] = arr[i];
+////			arr[i] = cur;
+////		}
+////	}
+////}
+////
+////void bubble( int arr[] , int len){
+////	for (int i = 0; i < len-1;i++){
+////		for (int j = 0; j < len - i - 1; j++){
+////			if (arr[j+1] > arr[j]){
+////				int tmp = arr[j];
+////				arr[j] = arr[j + 1];
+////				arr[j + 1] = tmp;
+////			}
+////		}
+////	}
+////}
+////void PPrint(int arr[], int len){
+////	for (int i = 0; i<len; i++){
+////		printf("%d ", arr[i]);
+////	}
+////	printf("\n");
+////}
+////int main(){
+////	int arr[] = { 21, 4, 30, 4, 5, 5, 9, 26, 78, 12, 5, 697, 18, 234 };
+////	int len = sizeof(arr) / sizeof(arr[0]);
+////	PPrint(arr, len);
+////	bubble(arr, len);
+////	PPrint(arr, len);
+////	system("pause");
+////	return 0;
+////}
+////
+//////static int num = 0;
+//////void merge(int arr[], int l, int m, int r){
+//////	int left = l;
+//////	int right = m + 1;
+//////	int len = r - l + 1;
+//////	int* newArr = (int*)malloc(sizeof(int)*len);
+//////	int k = 0;
+//////	while (left <= m && right <= r){
+//////		if (arr[left] < arr[right]){
+//////			newArr[k++] = arr[left++];
+//////		}
+//////		else{
+//////			newArr[k++] = arr[right++];
+//////		}
+//////	}
+//////
+//////	while (left <= m){
+//////		newArr[k++] = arr[left++];
+//////	}
+//////	while (right <= r){
+//////		newArr[k++] = arr[right++];
+//////	}
+//////
+//////	memcpy(arr + l, newArr, sizeof(int)*len);
+//////	free(newArr);
+//////	newArr = NULL;
+//////}
+//////
+//////void chaifen(int arr[], int l, int  r){
+//////	if (l == r){
+//////		return;
+//////	}
+//////	int m = l + (r - l) / 2;
+//////	chaifen(arr, l, m);
+//////	chaifen(arr, m + 1, r);
+//////	merge(arr, l, m, r);
+//////}
+//////void sort(int arr[], int len){
+//////	chaifen(arr, 0, len - 1);
+//////}
+////
+////
+//////#define _CRT_SECURE_NO_WARNINGS 1
+//////#include<stdio.h>
+//////#include<stdlib.h>
+//////#include<string.h>
+//////typedef int SLTDateType;
+//////typedef struct SListNode
+//////{
+//////	SLTDateType data;
+//////	struct SListNode* next;
+//////}SListNode;
+//////// 动态申请一个节点
+//////SListNode* BuySListNode(SLTDateType x){
+//////	SListNode* newnode = (SListNode*)malloc(sizeof(SListNode));
+//////	newnode->data = x;
+//////	newnode->next = NULL;
+//////	return newnode;
+//////}
+//////// 单链表打印
+//////void SListPrint(SListNode* plist){
+//////	if (NULL == plist || plist->next == NULL){
+//////		printf("链表为空或者该链表不存在\n");
+//////		return;
+//////	}
+//////	SListNode* cur = plist->next;
+//////	while (cur){
+//////		printf("%d ",cur->data);
+//////		cur = cur->next;
+//////	}
+//////	printf("\n");
+//////}
+//////// 单链表尾插
+//////void SListPushBack(SListNode** pplist, SLTDateType x){
+//////	if (NULL == pplist || NULL == *pplist){
+//////		return;
+//////	}
+//////	SListNode* newnode = BuySListNode(x);
+//////	SListNode* cur = *pplist;
+//////	SListNode* prev = *pplist;;
+//////	while (cur){
+//////		prev = cur;
+//////		cur = cur->next;
+//////	}
+//////	prev->next = newnode;
+//////}
+//////// 单链表的头插
+//////void SListPushFront(SListNode** pplist, SLTDateType x){
+//////	if (NULL == pplist || NULL == *pplist){
+//////		return;
+//////	}
+//////	SListNode* newH = *pplist;
+//////	SListNode* newnode = BuySListNode(x);
+//////	newnode->next = newH->next;
+//////	newH->next = newnode;
+//////	//*pplist = newH;
+//////}
+//////// 单链表的尾删
+//////void SListPopBack(SListNode** pplist){
+//////	if (NULL == pplist || NULL == *pplist){
+//////		return;
+//////	}
+//////	SListNode* prev = *pplist;
+//////	SListNode* cur = *pplist;
+//////	while (cur && cur->next){
+//////		prev = cur;
+//////		cur = cur->next;
+//////	}
+//////	prev->next = NULL;
+//////}
+//////// 单链表头删
+//////void SListPopFront(SListNode** pplist){
+//////	if (NULL == pplist || NULL == *pplist){
+//////		return;
+//////	}
+//////	(*pplist)->next = (*pplist)->next->next;
+//////}
+//////// 单链表查找
+//////SListNode* SListFind(SListNode* plist, SLTDateType x){
+//////	if (NULL == plist){
+//////		return NULL;
+//////	}
+//////	SListNode* cur = plist->next;
+//////	while (cur){
+//////		if (cur->data == x){
+//////			return cur;
+//////		}
+//////		cur = cur->next;
+//////	}
+//////	return NULL;
+//////}
+//////// 单链表在pos位置之后插入x
+//////// 分析思考为什么不在pos位置之前插入？
+//////void SListInsertAfter(SListNode* pos, SLTDateType x){
+//////	if (pos == NULL){
+//////		return;
+//////	}
+//////	SListNode* newnode = BuySListNode(x);
+//////	newnode->next = pos->next;
+//////	pos->next = newnode;
+//////}
+//////// 单链表删除pos位置之后的值
+//////// 分析思考为什么不删除pos位置？
+//////void SListEraseAfter(SListNode* pos){
+//////	if (NULL == pos){
+//////		return;
+//////	}
+//////	pos->next = pos->next->next;
+//////}
+//////// 单链表的销毁
+//////void SListDestory(SListNode* plist){
+//////	// 先保存头结点，最后销毁头结点
+//////	SListNode* prev = plist;
+//////	SListNode* cur = plist;
+//////	while (cur){
+//////		prev = cur;
+//////		cur = cur->next;
+//////		free(prev);
+//////	}
+//////	plist = NULL;
+//////	printf("销毁链表完成\n");
+//////}
+//////void test1(){
+//////	SListNode* sln=BuySListNode(0);
+//////	SListPushBack(&sln, 1);
+//////	SListPushBack(&sln, 2);
+//////	SListPushBack(&sln, 3);
+//////	SListPushBack(&sln, 4);
+//////	SListPushBack(&sln, 5);
+//////	SListPrint(sln);
+//////	SListPushFront(&sln, 6);
+//////	SListPrint(sln);
+//////	SListPushFront(&sln, 7);
+//////	SListPrint(sln);
+//////	SListPushFront(&sln, 8);
+//////	SListPrint(sln);
+//////	SListPushFront(&sln, 9);
+//////	SListPrint(sln);
+//////	SListPopBack(&sln);
+//////	SListPrint(sln);
+//////	SListPopBack(&sln);
+//////	SListPrint(sln);
+//////	SListPopBack(&sln);
+//////	SListPrint(sln);
+//////	SListPopFront(&sln);
+//////	SListPrint(sln);
+//////	SListPopFront(&sln);
+//////	SListPrint(sln);
+//////	SListNode* node = SListFind(sln, 1);
+//////	printf("%d \n",node->data);
+//////	SListInsertAfter(sln->next->next,23);
+//////	SListPrint(sln);
+//////	SListEraseAfter(sln->next);
+//////	SListPrint(sln);
+//////	SListEraseAfter(sln->next);
+//////	SListPrint(sln);
+//////	SListDestory(sln);
+//////}
+//////int main(){
+//////	test1();
+//////	system("pause");
+//////	return 0;
+//////}
